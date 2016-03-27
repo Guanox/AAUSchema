@@ -58,23 +58,8 @@ public class HTMLParser {
                     // selects fx <a href="/course/view.php?id=15658">[F16] Advanced Algorithms (DAT6, SW6, DE8, MI8)</a>
                     Element link = course.select("a").first();
                     String courseStr = link.text();
-
-//                    if (courseStr.toLowerCase().contains("theory")) {
-//                        currCourse.setType(CourseType.THEORY_OF_SCIENCE);
-//                        currCourse.set_name("VIT");
-//                    } else if (courseStr.toLowerCase().contains("software")) {
-//                        currCourse.setType(CourseType.SOFTWARE);
-//                        currCourse.set_name("SW6");
-//                    } else if (courseStr.toLowerCase().contains("database")) {
-//                        currCourse.setType(CourseType.DATABASES);
-//                        currCourse.set_name("DBS");
-//                    } else if (courseStr.toLowerCase().contains("algorithms")) {
-//                        currCourse.setType(CourseType.ADVANCED_ALGORTIHMS);
-//                        currCourse.set_name("AALG");
-//                    } else if (courseStr.toLowerCase().contains("semantic")) {
-//                        currCourse.setType(CourseType.SEMANTICS);
-//                        currCourse.set_name("SV");
-//                    }
+                    courseStr = courseStr.replaceAll(" [(].*", "");
+                    courseStr = courseStr.replaceAll("^\\S+ ", "");
 
                     currCourse.set_name(courseStr);
 
