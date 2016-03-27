@@ -12,6 +12,10 @@
 bin/
 gen/
 
+# Intelli j
+.idea/
+AAUSchema.iml
+
 # Gradle files
 .gradle/
 build/
