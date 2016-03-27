@@ -1,16 +1,18 @@
 package com.printz.guano.aauschema;
 
 import android.support.annotation.NonNull;
-import android.util.Log;
 
+import org.joda.time.DateTime;
+import org.joda.time.DateTimeComparator;
+import org.joda.time.DateTimeZone;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.TimeZone;
 
 /**
@@ -18,6 +20,7 @@ import java.util.TimeZone;
  */
 public class HTMLParser {
 
+    private static final String LOG_TAG = HTMLParser.class.getSimpleName();
     private String _HTMLContent;
     private ArrayList<SchemaDay> _schemaDays;
     private String TAG = HTMLParser.class.getSimpleName();
@@ -33,7 +36,7 @@ public class HTMLParser {
     }
 
     public boolean process() {
-        String currDate = getDate();
+        DateTime currDate = getDate();
 
         try {
             Document document = Jsoup.parse(_HTMLContent);
@@ -42,14 +45,16 @@ public class HTMLParser {
             for (Element element : elements) {
                 String dateString = element.getElementsByClass("date").text();
 
-                // we are not interested in displaying earlier dates than today
-                if (dateString.compareTo(currDate) < 0 ) {
+                DateTime schemaDate = getDateFromString(dateString);
+
+                // we are only interested in today's date and onwards
+                if (DateTimeComparator.getDateOnlyInstance().compare(schemaDate, currDate) < 0) {
                     continue;
                 }
 
                 SchemaDay day = new SchemaDay();
 
-                setDayDate(day, currDate, element, dateString);
+                setDayDate(day, currDate, element, schemaDate);
 
                 Elements courses = element.getElementsByClass("event");
                 for (Element course : courses) {
@@ -58,11 +63,12 @@ public class HTMLParser {
                     // selects fx <a href="/course/view.php?id=15658">[F16] Advanced Algorithms (DAT6, SW6, DE8, MI8)</a>
                     Element link = course.select("a").first();
                     String courseStr = link.text();
+
+                    // trim string of unnecessary info
                     courseStr = courseStr.replaceAll(" [(].*", "");
                     courseStr = courseStr.replaceAll("^\\S+ ", "");
 
                     currCourse.set_name(courseStr);
-
                     currCourse.set_time(course.getElementsByClass("time").text());
                     currCourse.setLocation(course.getElementsByClass("location").text());
                     currCourse.set_note(course.getElementsByClass("note").text());
@@ -76,31 +82,38 @@ public class HTMLParser {
             e.printStackTrace();
             return false;
         }
-        Log.d(TAG, "*********************************************");
 
         return true;
     }
 
-    private void setDayDate(SchemaDay currDay, String currDate, Element element, String dateString) {
-        if (dateString.compareTo(currDate) == 0) {
+    private void setDayDate(SchemaDay currDay, DateTime currDate, Element element, DateTime schemaDay) {
+        DateTimeComparator dateComparator = DateTimeComparator.getDateOnlyInstance();
+        DateTimeFormatter dateFormatter = DateTimeFormat.forPattern("dd/MM/yyyy");
+
+        if (dateComparator.compare(schemaDay, currDate) == 0) {
             currDay.set_weekday("Today");
-            currDay.set_date(dateString);
+            currDay.set_date(dateFormatter.print(schemaDay));
             isToday = true;
-        } else if(isToday) {
+        } else if (isToday) {
             currDay.set_weekday("Tomorrow");
-            currDay.set_date(dateString);
+            currDay.set_date(dateFormatter.print(schemaDay));
             isToday = false;
         } else {
             currDay.set_weekday(element.getElementsByClass("dayname").text());
-            currDay.set_date(dateString);
+            currDay.set_date(dateFormatter.print(schemaDay));
         }
     }
 
+    private DateTime getDateFromString(String date) {
+        DateTimeFormatter dateFormatter = DateTimeFormat.forPattern("dd/MM/yyyy");
+
+        return dateFormatter.parseDateTime(date);
+    }
+
     @NonNull
-    private String getDate() {
+    private DateTime getDate() {
         TimeZone timeZone = TimeZone.getTimeZone("CET");
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd/MM/yyyy");
-        simpleDateFormat.setTimeZone(timeZone);
-        return simpleDateFormat.format(new Date());
+
+        return new DateTime(DateTimeZone.forTimeZone(timeZone));
     }
 }

@@ -20,7 +20,7 @@ public class MainActivity extends AppCompatActivity {
     private String TAG = MainActivity.class.getSimpleName();
     private ListView schemaListView;
     private String _HTMLContent;
-    private final String SCHEMA_URL = "https://www.moodle.aau.dk/calmoodle/public/?sid=2269";
+    private final String SCHEMA_URL = "https://www.moodle.aau.dk/calmoodle/public/?sid=2653";
     private SchemaDownloader mSchemaDownloader;
 
     protected void onCreate(Bundle savedInstanceState) {
