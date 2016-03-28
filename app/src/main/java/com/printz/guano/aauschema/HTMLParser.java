@@ -24,7 +24,6 @@ public class HTMLParser {
     private String _HTMLContent;
     private ArrayList<SchemaDay> _schemaDays;
     private String TAG = HTMLParser.class.getSimpleName();
-    private boolean isToday;
 
     public HTMLParser(String XMLContents) {
         this._HTMLContent = XMLContents;
@@ -54,7 +53,8 @@ public class HTMLParser {
 
                 SchemaDay day = new SchemaDay();
 
-                setDayDate(day, currDate, element, schemaDate);
+                day.set_weekday(element.getElementsByClass("dayname").text());
+                day.set_date(dateString);
 
                 Elements courses = element.getElementsByClass("event");
                 for (Element course : courses) {
@@ -84,24 +84,6 @@ public class HTMLParser {
         }
 
         return true;
-    }
-
-    private void setDayDate(SchemaDay currDay, DateTime currDate, Element element, DateTime schemaDay) {
-        DateTimeComparator dateComparator = DateTimeComparator.getDateOnlyInstance();
-        DateTimeFormatter dateFormatter = DateTimeFormat.forPattern("dd/MM/yyyy");
-
-        if (dateComparator.compare(schemaDay, currDate) == 0) {
-            currDay.set_weekday("Today");
-            currDay.set_date(dateFormatter.print(schemaDay));
-            isToday = true;
-        } else if (isToday) {
-            currDay.set_weekday("Tomorrow");
-            currDay.set_date(dateFormatter.print(schemaDay));
-            isToday = false;
-        } else {
-            currDay.set_weekday(element.getElementsByClass("dayname").text());
-            currDay.set_date(dateFormatter.print(schemaDay));
-        }
     }
 
     private DateTime getDateFromString(String date) {
