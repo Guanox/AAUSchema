@@ -16,6 +16,8 @@ gen/
 .idea/
 AAUSchema.iml
 
+app/app.iml
+
 # Gradle files
 .gradle/
 build/

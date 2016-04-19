@@ -21,24 +21,23 @@ import java.util.TimeZone;
 public class HTMLParser {
 
     private static final String LOG_TAG = HTMLParser.class.getSimpleName();
-    private String _HTMLContent;
-    private ArrayList<SchemaDay> _schemaDays;
-    private String TAG = HTMLParser.class.getSimpleName();
+    private String mHTMLContent;
+    private ArrayList<SchemaDay> mSchemdaDays;
 
     public HTMLParser(String XMLContents) {
-        this._HTMLContent = XMLContents;
-        this._schemaDays = new ArrayList<>();
+        this.mHTMLContent = XMLContents;
+        this.mSchemdaDays = new ArrayList<>();
     }
 
     public ArrayList<SchemaDay> getSchemaDays() {
-        return _schemaDays;
+        return mSchemdaDays;
     }
 
     public boolean process() {
         DateTime currDate = getDate();
 
         try {
-            Document document = Jsoup.parse(_HTMLContent);
+            Document document = Jsoup.parse(mHTMLContent);
             Elements elements = document.getElementsByClass("day");
 
             for (Element element : elements) {
@@ -75,7 +74,7 @@ public class HTMLParser {
                     day.addCourse(currCourse);
                 }
 
-                _schemaDays.add(day);
+                mSchemdaDays.add(day);
             }
 
         } catch (Exception e) {
